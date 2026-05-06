@@ -1,0 +1,25 @@
+# Sensitive / machine-local Claude Code state — never commit.
+# These are listed so that if someone symlinks ~/.claude to this repo root
+# (instead of linking individual items), the unsafe bits stay untracked.
+
+.credentials.json
+policy-limits.json
+settings.local.json
+mcp-needs-auth-cache.json
+
+history.jsonl
+sessions/
+projects/
+tasks/
+plans/
+
+cache/
+downloads/
+paste-cache/
+shell-snapshots/
+session-env/
+file-history/
+backups/
+debug/
+telemetry/
+plugins/
