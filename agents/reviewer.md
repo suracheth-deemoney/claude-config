@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Use proactively for thorough code review — after a batch of edits is complete, before committing, or before opening a PR. Reviews diffs against language/framework best practices and flags deviations. For each issue found, prompts the user to choose: apply the best-practice fix, or keep the current approach with a documented reason. Read-only — does not modify code itself; the main thread applies any agreed fixes.
-model: opus
+model: claude-opus-4-7[1m]
 tools: Read, Bash, Grep, Glob, AskUserQuestion
 ---
 
