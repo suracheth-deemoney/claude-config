@@ -2,46 +2,46 @@
 
 Shareable global configuration for [Claude Code](https://claude.com/claude-code).
 
-This repo holds the portable bits of `~/.claude/` (settings, agents, commands, skills, hooks, top-level `CLAUDE.md`, etc.) so the same setup can be reused across machines. It does **not** contain credentials, session history, caches, or per-project state.
+This repo holds the portable bits of `~/.claude/` (settings, agents, commands, skills, hooks, top-level `CLAUDE.md`, etc.) so the same setup can be reused across machines. Runtime and sensitive files (credentials, session history, caches, per-project state) live in the same directory at runtime but are excluded by `.gitignore` and never committed.
 
 ## Setup
 
-Clone the repo somewhere stable (the path is referenced by symlinks, so don't move it after):
+Clone the repo somewhere stable (the path becomes the symlink target — don't move it after):
 
 ```bash
-git clone <this-repo> ~/configs/claude-config
+git clone git@github.com:suracheth-deemoney/claude-config.git ~/configs/claude-config
 ```
 
-Back up your existing `~/.claude/` before linking anything:
+Back up your existing `~/.claude/` (so you can recover credentials and any machine-local files):
 
 ```bash
 mv ~/.claude ~/.claude.backup
 ```
 
-Create `~/.claude/` and symlink the tracked items from this repo into it:
+Symlink `~/.claude` to the repo:
 
 ```bash
-mkdir -p ~/.claude
-cd ~/.claude
-
-# link each tracked file/dir from the repo
-for item in CLAUDE.md settings.json agents commands skills hooks memory; do
-  [ -e ~/configs/claude-config/$item ] && ln -s ~/configs/claude-config/$item $item
-done
+ln -s ~/configs/claude-config ~/.claude
 ```
 
-Restore any machine-local items you want to keep from the backup (e.g. `.credentials.json`, `projects/`, `sessions/`, `settings.local.json`):
+Restore the machine-local items you want to keep from the backup. These live inside `~/.claude/` (which now points at the repo) but are gitignored, so they won't be committed:
 
 ```bash
-cp -a ~/.claude.backup/.credentials.json ~/.claude/ 2>/dev/null || true
-cp -a ~/.claude.backup/settings.local.json ~/.claude/ 2>/dev/null || true
+cp -a ~/.claude.backup/.credentials.json     ~/.claude/ 2>/dev/null || true
+cp -a ~/.claude.backup/settings.local.json   ~/.claude/ 2>/dev/null || true
+cp -a ~/.claude.backup/projects              ~/.claude/ 2>/dev/null || true
+cp -a ~/.claude.backup/sessions              ~/.claude/ 2>/dev/null || true
+cp -a ~/.claude.backup/history.jsonl         ~/.claude/ 2>/dev/null || true
 ```
 
-Verify the links:
+Verify:
 
 ```bash
-ls -la ~/.claude
+ls -la ~/.claude    # should show: ~/.claude -> ~/configs/claude-config
+cd ~/.claude && git status   # should be clean (runtime files are ignored)
 ```
+
+> **Note:** Because `~/.claude` now resolves to the repo working tree, your credentials and session data sit on disk inside that directory. Keep the repo directory permissions private (the clone inherits your umask; `chmod 700 ~/configs/claude-config` if unsure). The repo itself stays safe to push publicly — `.gitignore` blocks the sensitive files.
 
 ## What goes in this repo
 
@@ -55,32 +55,29 @@ Tracked (safe to share):
 - `hooks/` — hook scripts
 - `memory/` — long-lived memory entries (review before committing — may contain personal context)
 
-Never tracked (machine-local or sensitive):
+Never tracked (machine-local or sensitive — see `.gitignore`):
 
-- `.credentials.json`, `policy-limits.json`
+- `.credentials.json`, `policy-limits.json`, `mcp-needs-auth-cache.json`
 - `settings.local.json` — per-machine overrides
 - `history.jsonl`, `sessions/`, `projects/`, `tasks/`, `plans/`
-- `cache/`, `downloads/`, `paste-cache/`, `shell-snapshots/`, `session-env/`, `file-history/`, `backups/`, `debug/`, `telemetry/`
-- `mcp-needs-auth-cache.json`
-
-These are covered by `.gitignore`.
+- `cache/`, `downloads/`, `paste-cache/`, `shell-snapshots/`, `session-env/`, `file-history/`, `backups/`, `debug/`, `telemetry/`, `plugins/`
 
 ## Updating config
 
-Edit files in this repo (or in `~/.claude/` — the symlinks point back here), then commit and push:
+Edit files in `~/.claude/` (which is the repo). Commit and push from either path:
 
 ```bash
-cd ~/configs/claude-config
+cd ~/.claude
 git add -A
 git commit -m "update: <what changed>"
 git push
 ```
 
-On another machine, `git pull` is enough — the symlinks pick up the new content automatically.
+On another machine, `git pull` is enough — Claude Code picks up the new content automatically.
 
 ## Removing the setup
 
 ```bash
-rm -rf ~/.claude
+rm ~/.claude              # removes the symlink, not the repo
 mv ~/.claude.backup ~/.claude
 ```
