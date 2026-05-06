@@ -1,7 +1,8 @@
 # Pull Requests
 
 - Do not include a "Test plan" section in PR descriptions.
-- When merging a PR, do **not** squash by default. Use `gh pr merge <n> --merge --delete-branch` (or `--rebase` for a linear history) so the individual commits on the branch are preserved on `main`. Only squash if the user explicitly asks for it on a specific PR.
+- When merging a PR, do **not** squash by default. Use `gh pr merge <n> --merge` (or `--rebase` for a linear history) so the individual commits on the branch are preserved on `main`. Only squash if the user explicitly asks for it on a specific PR.
+- Do **not** pass `--delete-branch` when merging. Keep the merged feature branch on the remote — it provides a paper trail and lets the user revisit, cherry-pick from, or re-open the branch later. Only delete a branch when the user explicitly asks for it.
 
 # Commits
 
